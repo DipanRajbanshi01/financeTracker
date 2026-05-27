@@ -11,9 +11,12 @@ export function LoginForm({ next }: { next?: string }) {
   const [pending, setPending] = useState<null | "password" | "google">(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Always anchor the callback to the URL the user is actually on. Using an env
+  // var here is fragile — a misformatted NEXT_PUBLIC_SITE_URL (e.g. missing the
+  // protocol) makes `new URL()` throw with "Invalid base URL".
   const callbackUrl = (() => {
-    const site = process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
-    const url = new URL("/callback", site || "http://localhost:3000");
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const url = new URL("/callback", origin);
     if (next) url.searchParams.set("next", next);
     return url.toString();
   })();
